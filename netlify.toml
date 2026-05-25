@@ -1,9 +1,8 @@
 [build]
   command = "cd frontend && npm ci && npm run build"
-  publish = "frontend/.next/standalone"
-  functions = "frontend/.next/server"
+  publish = "frontend/out"
 
 [[redirects]]
   from = "/*"
-  to = "/"
+  to = "/index.html"
   status = 200
