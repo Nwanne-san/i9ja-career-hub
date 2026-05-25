@@ -1,0 +1,11 @@
+[build]
+  command = "cd frontend && npm install && npm run build"
+  publish = "frontend/.next/standalone"
+
+[functions]
+  directory = "frontend/.next/server"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

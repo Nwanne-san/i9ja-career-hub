@@ -253,6 +253,64 @@ Future versions may include:
 - **Styling**: Utility-first Tailwind CSS approach
 - **Type Safety**: Full TypeScript implementation
 
+## 🚀 Deployment to Netlify
+
+### Prerequisites
+- GitHub account with repository pushed
+- Netlify account (free tier available)
+
+### Step-by-Step Deployment
+
+**1. Connect to Netlify**
+- Go to [netlify.com](https://netlify.com) and sign up/login
+- Click "New site from Git"
+- Select GitHub and authorize
+- Choose the `i9ja-career-hub` repository
+
+**2. Configure Build Settings**
+- **Build command**: `cd frontend && npm install && npm run build`
+- **Publish directory**: `frontend/.next`
+- Click "Deploy site"
+
+**3. Environment Variables (Optional)**
+- No environment variables required for current version
+- Skip unless you add backend integration
+
+**4. Custom Domain (Optional)**
+- Go to Site settings → Domain management
+- Add your custom domain (e.g., careers.i9ja.com)
+- Update DNS records if needed
+
+### Deployment Status
+- Initial build: 3-5 minutes
+- Site URL will be provided (e.g., `https://i9ja-career-hub-demo.netlify.app`)
+- Automatic deployments on every push to `master` branch
+
+### Performance Tips
+- Netlify handles caching automatically
+- No database needed (fully static site)
+- CDN delivers content globally
+- Average load time: < 1 second
+
+### Troubleshooting Deployment
+
+**Build fails with "node_modules not found"**
+```
+Solution: netlify.toml already configured to run npm install
+```
+
+**404 errors on page refresh**
+```
+Solution: netlify.toml configured with redirects for SPA routing
+```
+
+**Slow deployment**
+```
+- First deployment may be slower (npm install)
+- Subsequent deployments are faster (cached dependencies)
+- Check Netlify deploy logs for detailed info
+```
+
 ## 🤝 Contributing
 
 When working on this project:
