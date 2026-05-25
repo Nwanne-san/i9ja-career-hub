@@ -2,6 +2,10 @@
   "name": "stitch-i9ja",
   "version": "1.0.0",
   "description": "Minimalist Nigerian community platform",
+  "engines": {
+    "node": "18.17.0",
+    "npm": "9.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
