@@ -1,0 +1,283 @@
+@import "tailwindcss";
+
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../modules/**/*.{js,ts,jsx,tsx}";
+
+@theme {
+  /* Brand */
+  --color-brand-green: #008751;
+  --color-brand-green-light: #00a562;
+  --color-brand-green-dark: #005c38;
+  --color-brand-gold: #e8a020;
+  --color-brand-gold-light: #f5b83d;
+
+  /* Surfaces (i9ja dark) */
+  --color-bg-base: #0d0f0e;
+  --color-bg-card: #161a18;
+  --color-bg-card-hover: #1e2420;
+  --color-bg-elevated: #222927;
+  --color-border-line: #2a3030;
+  --color-border-line-light: #334040;
+  --color-ink: #e8ede9;
+  --color-ink-muted: #8a9e90;
+  --color-ink-dim: #4a5e52;
+
+  /* Legacy MD3 names → i9ja dark tokens (existing pages) */
+  --color-surface: #161a18;
+  --color-surface-dim: #1e2420;
+  --color-surface-bright: #222927;
+  --color-surface-50: #1e2420;
+  --color-surface-100: #222927;
+  --color-surface-200: #2a3030;
+  --color-surface-300: #334040;
+  --color-surface-400: #3d4545;
+  --color-surface-container: #1e2420;
+  --color-surface-container-low: #161a18;
+  --color-surface-container-lowest: #0d0f0e;
+
+  --color-on-surface: #e8ede9;
+  --color-on-surface-variant: #8a9e90;
+
+  --color-primary: #008751;
+  --color-primary-50: #0d1a15;
+  --color-primary-100: #1a2e22;
+  --color-primary-300: #00a562;
+  --color-primary-600: #00a562;
+  --color-primary-700: #008751;
+  --color-primary-container: #005c38;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #e8ede9;
+  --color-primary-fixed: #005c38;
+  --color-on-primary-fixed: #e8ede9;
+  --color-on-primary-fixed-variant: #00a562;
+
+  --color-secondary-50: #0d1a15;
+  --color-secondary-100: #1a2e22;
+  --color-secondary-600: #00a562;
+  --color-secondary-700: #008751;
+  --color-secondary-container: color-mix(in srgb, #008751 25%, transparent);
+  --color-on-secondary-container: #00a562;
+
+  --color-tertiary-600: #e8a020;
+  --color-tertiary-700: #c48910;
+  --color-tertiary-fixed: color-mix(in srgb, #e8a020 20%, transparent);
+  --color-on-tertiary-fixed: #e8a020;
+  --color-on-tertiary-fixed-variant: #f5b83d;
+
+  --color-border-low-contrast: #2a3030;
+  --color-outline: #4a5e52;
+  --color-outline-variant: #334040;
+
+  --color-success: #22c55e;
+  --color-success-green: #00a562;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  --color-neutral-50: #1e2420;
+  --color-neutral-100: #222927;
+  --color-neutral-200: #2a3030;
+  --color-neutral-600: #8a9e90;
+  --color-neutral-700: #e8ede9;
+  --color-neutral-800: #161a18;
+  --color-neutral-900: #0d0f0e;
+
+  /* Typography */
+  --font-display: var(--font-syne), "DM Sans", sans-serif;
+  --font-body: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Layout */
+  --spacing-gutter: 1.5rem;
+  --spacing-section: 3rem;
+  --max-width-page: 80rem;
+  --max-width-container: 80rem;
+  --max-width-container-max: 80rem;
+  --width-sidebar-left: 13rem;
+  --width-sidebar-right: 16rem;
+
+  /* Animations */
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+  --animate-pulse-slow: pulse 3s ease-in-out infinite;
+  --animate-fade-up: fade-up 400ms ease forwards;
+}
+
+/* Light mode overrides */
+.light {
+  --color-bg-base: #ffffff;
+  --color-bg-card: #f7f8fa;
+  --color-bg-card-hover: #eef0f2;
+  --color-bg-elevated: #e8eaec;
+  --color-border-line: #e2e5e8;
+  --color-border-line-light: #d0d3d8;
+  --color-ink: #0d1117;
+  --color-ink-muted: #4a5568;
+  --color-ink-dim: #718096;
+
+  --color-surface: #ffffff;
+  --color-surface-container: #f2f4f6;
+  --color-surface-container-low: #f7f9fb;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-surface: #191c1e;
+  --color-on-surface-variant: #424750;
+  --color-border-low-contrast: #e8ede9;
+  --color-outline: #717579;
+  --color-primary: #00386c;
+  --color-primary-600: #0c4783;
+  --color-primary-700: #00386c;
+}
+
+/* Legacy typography utilities (from former tailwind.config + globals) */
+@utility font-headline-lg {
+  font-family: var(--font-display);
+}
+@utility font-headline-md {
+  font-family: var(--font-display);
+}
+@utility font-body-lg {
+  font-family: var(--font-body);
+}
+@utility font-body-sm {
+  font-family: var(--font-body);
+}
+@utility font-label-bold {
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+@utility font-label-pill {
+  font-family: var(--font-body);
+  font-weight: 500;
+}
+@utility text-headline-lg {
+  font-size: 32px;
+  line-height: 40px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+@utility text-headline-md {
+  font-size: 20px;
+  line-height: 28px;
+  font-weight: 600;
+}
+@utility text-body-lg {
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+@utility text-body-sm {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+}
+@utility text-label-pill {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(0, 135, 81, 0.3);
+  }
+  to {
+    box-shadow: 0 0 40px rgba(0, 135, 81, 0.5);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Must live in @layer base — unlayered * { padding: 0 } overrides Tailwind utilities */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--font-body);
+    background-color: var(--color-bg-base);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer base {
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-bg-base);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-border-line);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-line-light);
+  }
+}
+
+@layer components {
+  /* Material Symbols (legacy pages until migrated to Lucide) */
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    font-size: 24px;
+    display: inline-block;
+    line-height: 1;
+    text-transform: none;
+    letter-spacing: normal;
+    word-wrap: normal;
+    white-space: nowrap;
+    direction: ltr;
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .text-gradient-hero {
+    background: linear-gradient(90deg, #00a562, #e8a020);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .card-lift {
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-border-line-light);
+  }
+
+  .i9ja-card {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border-line);
+    color: var(--color-ink);
+  }
+}

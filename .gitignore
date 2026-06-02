@@ -10,7 +10,12 @@ node_modules/
 /.next
 /out
 /dist
+/build
 *.tsbuildinfo
+next-env.d.ts
+
+# Env
+.env*
 
 # Misc
 .DS_Store
