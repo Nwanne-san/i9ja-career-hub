@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import nextSVGR from "next-svgr";
+import path from "path";
 
 const securityHeaders = [
   { key: "X-Frame-Options", value: "DENY" },
@@ -24,7 +25,19 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
+  compress: true,
+  productionBrowserSourceMaps: false,
+  devIndicators: {
+    position: "bottom-right",
+  },
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 10,
+  },
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -43,6 +56,7 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   turbopack: {
+    root: path.resolve(__dirname),
     rules: {
       "*.svg": {
         loaders: ["@svgr/webpack"],
