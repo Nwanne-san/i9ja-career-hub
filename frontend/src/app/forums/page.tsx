@@ -6,7 +6,6 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback, memo } from 'react'
-import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import Link from 'next/link'
 import Navbar from '@/modules/shared/component/Navbar'
@@ -16,9 +15,10 @@ import { threadAPI } from '@/services/api'
 import { FORUM_CATEGORIES } from '@/utils/constants'
 import { AppRoutes } from '@/routes/app.routes'
 import type { RootState } from '@/redux/store'
+import type { Thread } from '@/types'
 
 // Memoized thread card to prevent unnecessary re-renders
-const ThreadCard = memo(({ thread }: { thread: any }) => (
+const ThreadCard = memo(({ thread }: { thread: Thread }) => (
   <Link
     href={AppRoutes.forumDetail(thread.id)}
     className="block bg-bg-card border border-border-low-contrast rounded-lg p-4 hover:shadow-md transition-all group"
@@ -61,12 +61,11 @@ const ThreadCard = memo(({ thread }: { thread: any }) => (
 ThreadCard.displayName = 'ThreadCard'
 
 export default function ForumsPage() {
-  const router = useRouter()
   const { isAuthenticated } = useSelector((state: RootState) => state.auth)
-  const [threads, setThreads] = useState<any[]>([])
+  const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [cache, setCache] = useState<Record<string, any[]>>({})
+  const [cache, setCache] = useState<Record<string, Thread[]>>({})
 
   // Use useCallback to prevent function recreations
   const fetchThreads = useCallback(async (category: string) => {
@@ -82,7 +81,7 @@ export default function ForumsPage() {
       const response = await threadAPI.getAll({
         category: category === 'all' ? undefined : category,
       })
-      const data = response.data || []
+      const data = (response.data as Thread[]) || []
       setThreads(data)
       setCache(prev => ({ ...prev, [category]: data }))
     } catch (error) {
@@ -96,7 +95,7 @@ export default function ForumsPage() {
   // Fetch threads only when category changes
   useEffect(() => {
     fetchThreads(selectedCategory)
-  }, [selectedCategory])
+  }, [selectedCategory, fetchThreads])
 
   // Memoize categories buttons
   const categoryButtons = useMemo(() => (

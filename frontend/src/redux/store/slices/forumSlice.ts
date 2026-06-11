@@ -1,7 +1,7 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import type { Thread, Job, Course, Notification } from "@/types";
+import type { Thread } from "@/types";
 
 interface ForumState {
   threads: Thread[];

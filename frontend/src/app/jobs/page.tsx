@@ -5,21 +5,20 @@
 
 'use client'
 
-import { useState, useEffect, useCallback, memo, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useCallback, memo } from 'react'
 import { useSelector } from 'react-redux'
 import Link from 'next/link'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
-import Button from '@/modules/shared/component/Button'
 import Badge from '@/modules/shared/component/Badge'
 import { jobAPI } from '@/services/api'
 import { JOB_TYPES } from '@/utils/constants'
 import { AppRoutes } from '@/routes/app.routes'
 import type { RootState } from '@/redux/store'
+import type { Job } from '@/types'
 
 // Memoized job card
-const JobCard = memo(({ job, isSaved }: { job: any; isSaved: boolean }) => (
+const JobCard = memo(({ job, isSaved }: { job: Job; isSaved: boolean }) => (
   <Link
     href={AppRoutes.jobDetail(job.id)}
     className="block bg-bg-card border border-border-low-contrast rounded-lg p-4 hover:shadow-md transition-all"
@@ -50,14 +49,13 @@ const JobCard = memo(({ job, isSaved }: { job: any; isSaved: boolean }) => (
 JobCard.displayName = 'JobCard'
 
 export default function JobsPage() {
-  const router = useRouter()
   const { savedJobs } = useSelector((state: RootState) => state.jobs)
-  const [jobs, setJobs] = useState<any[]>([])
+  const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState<string>('all')
   const [filterLocation, setFilterLocation] = useState('all')
-  const [cache, setCache] = useState<Record<string, any[]>>({})
+  const [cache, setCache] = useState<Record<string, Job[]>>({})
 
   const fetchJobs = useCallback(async (search: string, type: string, location: string) => {
     const cacheKey = `${search}|${type}|${location}`
@@ -76,7 +74,7 @@ export default function JobsPage() {
         type: type === 'all' ? undefined : type,
         location: location === 'all' ? undefined : location,
       })
-      const data = response.data || []
+      const data = (response.data as Job[]) || []
       setJobs(data)
       setCache(prev => ({ ...prev, [cacheKey]: data }))
     } catch (error) {
@@ -108,7 +106,7 @@ export default function JobsPage() {
         <div className="bg-primary-container rounded-2xl p-6 sm:p-8 text-on-primary-container mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold mb-2">Jobs</h1>
           <p className="text-on-primary-container opacity-90">
-            Find your next opportunity in Nigeria's tech ecosystem
+            Find your next opportunity in Nigeria&rsquo;s tech ecosystem
           </p>
         </div>
 

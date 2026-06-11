@@ -12,6 +12,7 @@ import { threadAPI, replyAPI } from '@/services/api'
 import { useParams, useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import type { RootState } from '@/redux/store'
+import type { Thread, Reply } from '@/types'
 
 const replySchema = z.object({
   body: z.string().min(10, 'Reply must be at least 10 characters'),
@@ -24,11 +25,10 @@ export default function ThreadDetailPage() {
   const params = useParams()
   const threadId = params.id as string
   const { user } = useSelector((state: RootState) => state.auth)
-  const [thread, setThread] = useState<any>(null)
-  const [replies, setReplies] = useState<any[]>([])
+  const [thread, setThread] = useState<Thread | null>(null)
+  const [replies, setReplies] = useState<Reply[]>([])
   const [loading, setLoading] = useState(true)
   const [replying, setReplying] = useState(false)
-  const [error, setError] = useState('')
   const {
     register,
     handleSubmit,
@@ -45,10 +45,10 @@ export default function ThreadDetailPage() {
           threadAPI.getById(threadId),
           replyAPI.getByThread(threadId),
         ])
-        setThread(threadRes.data)
-        setReplies(repliesRes.data)
-      } catch (err: any) {
-        setError('Failed to load thread')
+        setThread(threadRes.data as Thread)
+        setReplies((repliesRes.data as Reply[]) || [])
+      } catch {
+        console.error('Failed to load thread')
       } finally {
         setLoading(false)
       }
@@ -68,8 +68,8 @@ export default function ThreadDetailPage() {
       })
       setReplies([...replies, response.data])
       reset()
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to post reply')
+    } catch {
+      console.error('Failed to post reply')
     } finally {
       setReplying(false)
     }

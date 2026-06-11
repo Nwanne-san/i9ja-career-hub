@@ -7,11 +7,17 @@ import Footer from '@/modules/shared/component/Footer'
 import { searchAPI } from '@/services/api'
 import Link from 'next/link'
 import { AppRoutes } from '@/routes/app.routes'
+import type { Thread, Job, Course, User } from '@/types'
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
-  const [results, setResults] = useState<any>({
+  const [results, setResults] = useState<{
+    threads: Thread[]
+    jobs: Job[]
+    courses: Course[]
+    users: User[]
+  }>({
     threads: [],
     jobs: [],
     courses: [],
@@ -27,7 +33,12 @@ export default function SearchPage() {
     setLoading(true)
     try {
       const res = await searchAPI.global(searchQuery)
-      setResults(res.data)
+      setResults(res.data as {
+        threads: Thread[]
+        jobs: Job[]
+        courses: Course[]
+        users: User[]
+      })
     } catch (error) {
       console.error('Search failed', error)
     } finally {
@@ -66,7 +77,7 @@ export default function SearchPage() {
               <div className="mb-12">
                 <h2 className="text-2xl font-bold text-on-surface mb-4">Threads</h2>
                 <div className="space-y-3">
-                  {results.threads.map((thread: any) => (
+                  {results.threads.map((thread: Thread) => (
                     <Link
                       key={thread.id}
                       href={AppRoutes.forumDetail(thread.id)}
@@ -84,7 +95,7 @@ export default function SearchPage() {
               <div className="mb-12">
                 <h2 className="text-2xl font-bold text-on-surface mb-4">Jobs</h2>
                 <div className="space-y-3">
-                  {results.jobs.map((job: any) => (
+                  {results.jobs.map((job: Job) => (
                     <Link
                       key={job.id}
                       href={AppRoutes.jobDetail(job.id)}
@@ -102,7 +113,7 @@ export default function SearchPage() {
               <div className="mb-12">
                 <h2 className="text-2xl font-bold text-on-surface mb-4">Courses</h2>
                 <div className="space-y-3">
-                  {results.courses.map((course: any) => (
+                  {results.courses.map((course: Course) => (
                     <Link
                       key={course.id}
                       href={AppRoutes.courseDetail(course.id)}
@@ -116,9 +127,9 @@ export default function SearchPage() {
               </div>
             )}
 
-            {Object.values(results).every((arr: any) => arr?.length === 0) && (
+            {Object.values(results).every((arr) => Array.isArray(arr) && arr?.length === 0) && (
               <p className="text-center text-on-surface-variant py-12">
-                No results found for "{searchQuery}"
+                No results found for &ldquo;{searchQuery}&rdquo;
               </p>
             )}
           </>

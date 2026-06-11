@@ -53,8 +53,8 @@ export default function RegisterPage() {
         website: data.website,
       })
       router.push(`/login?email=${encodeURIComponent(data.email)}`)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create account')
+    } catch {
+      setError('Failed to create account')
     } finally {
       setLoading(false)
     }

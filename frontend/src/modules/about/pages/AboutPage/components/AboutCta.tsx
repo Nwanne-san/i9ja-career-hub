@@ -16,7 +16,7 @@ export function AboutCta() {
           </p>
           <div className="flex flex-col justify-center gap-4 pt-2 sm:flex-row">
             <Button
-              href={AppRoutes.authLogin}
+              href={AppRoutes.login}
               className="rounded-full border-transparent bg-white px-8 py-3.5 text-brand-green hover:bg-white/90"
             >
               Create Free Account

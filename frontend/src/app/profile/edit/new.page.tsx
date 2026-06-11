@@ -73,8 +73,8 @@ export default function EditProfilePage() {
       dispatch(setCredentials({ accessToken: user?.id || '', user: response.data }))
       setSuccess('Profile updated successfully!')
       setTimeout(() => router.push('/profile'), 1500)
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to update profile')
+    } catch {
+      setError('Failed to update profile')
     } finally {
       setSaving(false)
     }

@@ -5,7 +5,6 @@
 
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
@@ -14,7 +13,6 @@ import { AppRoutes } from '@/routes/app.routes'
 import type { RootState } from '@/redux/store'
 
 export default function ProfilePage() {
-  const router = useRouter()
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
 
   if (!isAuthenticated || !user) {
@@ -89,7 +87,7 @@ export default function ProfilePage() {
           <div className="bg-bg-card border border-border-low-contrast rounded-2xl p-6">
             <h2 className="text-xl font-bold text-on-surface mb-4">Saved Jobs</h2>
             <p className="text-on-surface-variant text-center py-8">
-              You haven't saved any jobs yet. <a href={AppRoutes.jobs} className="text-primary font-semibold">Browse jobs</a>
+              You haven&rsquo;t saved any jobs yet. <a href={AppRoutes.jobs} className="text-primary font-semibold">Browse jobs</a>
             </p>
           </div>
 
@@ -97,7 +95,7 @@ export default function ProfilePage() {
           <div className="bg-bg-card border border-border-low-contrast rounded-2xl p-6">
             <h2 className="text-xl font-bold text-on-surface mb-4">Enrolled Courses</h2>
             <p className="text-on-surface-variant text-center py-8">
-              You haven't enrolled in any courses yet. <a href={AppRoutes.courses} className="text-primary font-semibold">Explore courses</a>
+              You haven&rsquo;t enrolled in any courses yet. <a href={AppRoutes.courses} className="text-primary font-semibold">Explore courses</a>
             </p>
           </div>
         </div>

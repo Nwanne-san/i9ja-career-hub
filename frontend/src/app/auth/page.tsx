@@ -57,8 +57,8 @@ export default function AuthPage() {
       const { accessToken, user } = response.data
       dispatch(setCredentials({ accessToken, user }))
       router.push('/')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
+    } catch {
+      setError('Login failed. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -76,8 +76,8 @@ export default function AuthPage() {
       const { accessToken, user } = response.data
       dispatch(setCredentials({ accessToken, user }))
       router.push('/')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.')
+    } catch {
+      setError('Registration failed. Please try again.')
     } finally {
       setIsLoading(false)
     }

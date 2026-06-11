@@ -11,7 +11,7 @@ export function HomeProPromoSection() {
       <p className="mt-2 text-xs text-ink-muted sm:text-sm">
         {HOME_PRO_PROMO.description}
       </p>
-      <Button href={AppRoutes.authLogin} className="mt-4 rounded-lg px-4 py-2 text-sm">
+      <Button href={AppRoutes.login} className="mt-4 rounded-lg px-4 py-2 text-sm">
         {HOME_PRO_PROMO.ctaLabel}
       </Button>
     </div>

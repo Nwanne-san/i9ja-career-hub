@@ -8,6 +8,7 @@ import { courseAPI } from '@/services/api'
 import { useParams, useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '@/redux/store'
+import type { Course } from '@/types'
 import { enrollCourse } from '@/redux/store/slices/courseSlice'
 
 export default function CourseDetailPage() {
@@ -17,7 +18,7 @@ export default function CourseDetailPage() {
   const dispatch = useDispatch()
   const { user } = useSelector((state: RootState) => state.auth)
   const { enrolledCourses } = useSelector((state: RootState) => state.courses)
-  const [course, setCourse] = useState<any>(null)
+  const [course, setCourse] = useState<Course | null>(null)
   const [loading, setLoading] = useState(true)
   const [enrolling, setEnrolling] = useState(false)
   const [error, setError] = useState('')
@@ -27,8 +28,8 @@ export default function CourseDetailPage() {
     const fetchCourse = async () => {
       try {
         const response = await courseAPI.getById(courseId)
-        setCourse(response.data)
-      } catch (err: any) {
+        setCourse(response.data as Course)
+      } catch {
         setError('Failed to load course')
       } finally {
         setLoading(false)
@@ -47,8 +48,8 @@ export default function CourseDetailPage() {
       await courseAPI.enroll(courseId)
       dispatch(enrollCourse(courseId))
       alert('Successfully enrolled in course!')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to enroll')
+    } catch {
+      setError('Failed to enroll')
     } finally {
       setEnrolling(false)
     }

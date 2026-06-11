@@ -24,7 +24,7 @@ type ThreadFormData = z.infer<typeof threadSchema>
 
 export default function NewThreadPage() {
   const router = useRouter()
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.auth)
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const {
@@ -61,8 +61,8 @@ export default function NewThreadPage() {
         tags: data.tags.split(',').map(t => t.trim()).filter(Boolean),
       })
       router.push('/forums')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create thread')
+    } catch {
+      setError('Failed to create thread')
     } finally {
       setLoading(false)
     }

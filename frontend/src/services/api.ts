@@ -24,9 +24,12 @@ apiClient.interceptors.request.use((config) => {
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      Cookies.remove(AUTH_COOKIE_NAME);
+  (error: unknown) => {
+    if (error instanceof Object && 'response' in error) {
+      const response = (error as Record<string, unknown>).response as Record<string, unknown>
+      if (response?.status === 401 && typeof window !== "undefined") {
+        Cookies.remove(AUTH_COOKIE_NAME);
+      }
     }
     // Return mock data on connection errors instead of rejecting
     return Promise.resolve({ data: { success: false, fromMock: true } });
@@ -37,15 +40,24 @@ apiClient.interceptors.response.use(
 const delayPromise = (ms: number = 300) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Helper to handle API errors with mock fallback
-async function apiWithFallback(apiCall: Promise<any>, mockData: any) {
+async function apiWithFallback(
+  apiCall: Promise<{ data: unknown }>,
+  mockData: unknown,
+) {
   try {
     const response = await apiCall;
-    if (response.data?.success === false && response.data?.fromMock) {
+    if (
+      typeof response.data === 'object' &&
+      response.data !== null &&
+      'success' in response.data &&
+      'fromMock' in response.data &&
+      (response.data as Record<string, unknown>).success === false
+    ) {
       await delayPromise(300);
       return { data: mockData };
     }
     return response;
-  } catch (error) {
+  } catch {
     await delayPromise(300);
     return { data: mockData };
   }
@@ -55,7 +67,7 @@ async function apiWithFallback(apiCall: Promise<any>, mockData: any) {
 export const authAPI = {
   login: (email: string, password: string) =>
     apiClient.post("/auth/login", { email, password }),
-  register: (data: { email: string; password: string; displayName: string }) =>
+  register: (data: Record<string, unknown>) =>
     apiClient.post("/auth/register", data),
   verify: (email: string, code: string) =>
     apiClient.post("/auth/verify-email", { email, code }),
@@ -68,7 +80,7 @@ export const authAPI = {
 
 // ========== THREADS/FORUMS API ==========
 export const threadAPI = {
-  getAll: (params?: any) => apiWithFallback(
+  getAll: (params?: Record<string, unknown>) => apiWithFallback(
     apiClient.get("/threads", { params }),
     mockThreads
   ),
@@ -76,15 +88,15 @@ export const threadAPI = {
     apiClient.get(`/threads/${id}`),
     mockThreads.find(t => t.id === id) || mockThreads[0]
   ),
-  create: (data: any) => apiClient.post("/threads", data),
-  update: (id: string, data: any) => apiClient.put(`/threads/${id}`, data),
+  create: (data: Record<string, unknown>) => apiClient.post("/threads", data),
+  update: (id: string, data: Record<string, unknown>) => apiClient.put(`/threads/${id}`, data),
   delete: (id: string) => apiClient.delete(`/threads/${id}`),
-  getByCategory: (categoryId: string, params?: any) =>
+  getByCategory: (categoryId: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get(`/threads/category/${categoryId}`, { params }),
       mockThreads
     ),
-  search: (query: string, params?: any) =>
+  search: (query: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get("/threads/search", { params: { q: query, ...params } }),
       mockThreads
@@ -95,14 +107,14 @@ export const threadAPI = {
 
 // ========== REPLIES/COMMENTS API ==========
 export const replyAPI = {
-  getByThread: (threadId: string, params?: any) =>
+  getByThread: (threadId: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get(`/threads/${threadId}/replies`, { params }),
       mockReplies[threadId as keyof typeof mockReplies] || []
     ),
-  create: (threadId: string, data: any) =>
+  create: (threadId: string, data: Record<string, unknown>) =>
     apiClient.post(`/threads/${threadId}/replies`, data),
-  update: (threadId: string, replyId: string, data: any) =>
+  update: (threadId: string, replyId: string, data: Record<string, unknown>) =>
     apiClient.put(`/threads/${threadId}/replies/${replyId}`, data),
   delete: (threadId: string, replyId: string) =>
     apiClient.delete(`/threads/${threadId}/replies/${replyId}`),
@@ -110,7 +122,7 @@ export const replyAPI = {
 
 // ========== JOBS API ==========
 export const jobAPI = {
-  getAll: (params?: any) => apiWithFallback(
+  getAll: (params?: Record<string, unknown>) => apiWithFallback(
     apiClient.get("/jobs", { params }),
     mockJobs
   ),
@@ -118,15 +130,15 @@ export const jobAPI = {
     apiClient.get(`/jobs/${id}`),
     mockJobs.find(j => j.id === id) || mockJobs[0]
   ),
-  create: (data: any) => apiClient.post("/jobs", data),
-  update: (id: string, data: any) => apiClient.put(`/jobs/${id}`, data),
+  create: (data: Record<string, unknown>) => apiClient.post("/jobs", data),
+  update: (id: string, data: Record<string, unknown>) => apiClient.put(`/jobs/${id}`, data),
   delete: (id: string) => apiClient.delete(`/jobs/${id}`),
-  search: (query: string, params?: any) =>
+  search: (query: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get("/jobs/search", { params: { q: query, ...params } }),
       mockJobs
     ),
-  apply: (jobId: string, data: any) =>
+  apply: (jobId: string, data: Record<string, unknown>) =>
     apiClient.post(`/jobs/${jobId}/apply`, data),
   getSaved: () => apiWithFallback(
     apiClient.get("/jobs/saved"),
@@ -138,7 +150,7 @@ export const jobAPI = {
 
 // ========== COURSES API ==========
 export const courseAPI = {
-  getAll: (params?: any) => apiWithFallback(
+  getAll: (params?: Record<string, unknown>) => apiWithFallback(
     apiClient.get("/courses", { params }),
     mockCourses
   ),
@@ -146,7 +158,7 @@ export const courseAPI = {
     apiClient.get(`/courses/${id}`),
     mockCourses.find(c => c.id === id) || mockCourses[0]
   ),
-  search: (query: string, params?: any) =>
+  search: (query: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get("/courses/search", { params: { q: query, ...params } }),
       mockCourses
@@ -160,7 +172,7 @@ export const courseAPI = {
     apiClient.get(`/courses/${courseId}/progress`),
     { completed: 0, total: 10 }
   ),
-  submitReview: (courseId: string, data: any) =>
+  submitReview: (courseId: string, data: Record<string, unknown>) =>
     apiClient.post(`/courses/${courseId}/reviews`, data),
 };
 
@@ -170,7 +182,7 @@ export const userAPI = {
     username
       ? apiClient.get(`/users/${username}`)
       : apiClient.get("/users/profile"),
-  updateProfile: (data: any) => apiClient.put("/users/profile", data),
+  updateProfile: (data: Record<string, unknown>) => apiClient.put("/users/profile", data),
   search: (query: string) => apiClient.get("/users/search", { params: { q: query } }),
   follow: (userId: string) => apiClient.post(`/users/${userId}/follow`),
   unfollow: (userId: string) => apiClient.delete(`/users/${userId}/follow`),
@@ -182,28 +194,28 @@ export const userAPI = {
 
 // ========== NOTIFICATIONS API ==========
 export const notificationAPI = {
-  getAll: (params?: any) => apiClient.get("/notifications", { params }),
+  getAll: (params?: Record<string, unknown>) => apiClient.get("/notifications", { params }),
   markAsRead: (notificationId: string) =>
     apiClient.put(`/notifications/${notificationId}/read`),
   markAllAsRead: () => apiClient.put("/notifications/read-all"),
   delete: (notificationId: string) => apiClient.delete(`/notifications/${notificationId}`),
   getPreferences: () => apiClient.get("/notifications/preferences"),
-  updatePreferences: (data: any) =>
+  updatePreferences: (data: Record<string, unknown>) =>
     apiClient.put("/notifications/preferences", data),
 };
 
 // ========== SEARCH API ==========
 export const searchAPI = {
-  global: (query: string, params?: any) =>
+  global: (query: string, params?: Record<string, unknown>) =>
     apiWithFallback(
       apiClient.get("/search", { params: { q: query, ...params } }),
       mockSearchResults
     ),
-  threads: (query: string, params?: any) =>
+  threads: (query: string, params?: Record<string, unknown>) =>
     threadAPI.search(query, params),
-  jobs: (query: string, params?: any) =>
+  jobs: (query: string, params?: Record<string, unknown>) =>
     jobAPI.search(query, params),
-  courses: (query: string, params?: any) =>
+  courses: (query: string, params?: Record<string, unknown>) =>
     courseAPI.search(query, params),
   users: (query: string) => userAPI.search(query),
 };

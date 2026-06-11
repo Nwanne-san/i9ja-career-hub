@@ -47,8 +47,8 @@ export default function LoginPage() {
     try {
       await authAPI.login(data.email, data.password)
       router.push('/')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
+    } catch {
+      setError('Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -138,7 +138,7 @@ export default function LoginPage() {
             </div>
 
             <p className="text-center text-xs text-on-surface-variant">
-              Don't have an account?{' '}
+              Don&rsquo;t have an account?{' '}
               <button
                 type="button"
                 onClick={() => router.push(AppRoutes.register)}

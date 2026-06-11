@@ -35,6 +35,13 @@ export interface Thread {
   featured?: boolean;
 }
 
+export interface Reply {
+  id: string;
+  body: string;
+  author: Pick<User, "id" | "username" | "displayName" | "avatarUrl">;
+  createdAt: string;
+}
+
 export interface Job {
   id: string;
   title: string;
@@ -47,6 +54,7 @@ export interface Job {
   category: string;
   postedAt: string;
   applyUrl?: string;
+  description?: string;
 }
 
 export interface Course {

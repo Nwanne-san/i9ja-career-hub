@@ -9,6 +9,7 @@ import { jobAPI } from '@/services/api'
 import { useParams, useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '@/redux/store'
+import type { Job } from '@/types'
 import { saveJob, unsaveJob } from '@/redux/store/slices/jobSlice'
 
 export default function JobDetailPage() {
@@ -18,7 +19,7 @@ export default function JobDetailPage() {
   const dispatch = useDispatch()
   const { user } = useSelector((state: RootState) => state.auth)
   const { savedJobs } = useSelector((state: RootState) => state.jobs)
-  const [job, setJob] = useState<any>(null)
+  const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
   const [error, setError] = useState('')
@@ -28,8 +29,8 @@ export default function JobDetailPage() {
     const fetchJob = async () => {
       try {
         const response = await jobAPI.getById(jobId)
-        setJob(response.data)
-      } catch (err: any) {
+        setJob(response.data as Job)
+      } catch {
         setError('Failed to load job')
       } finally {
         setLoading(false)
@@ -47,8 +48,8 @@ export default function JobDetailPage() {
     try {
       await jobAPI.apply(jobId, { message: 'I am interested in this position' })
       alert('Application submitted successfully!')
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to apply')
+    } catch {
+      setError('Failed to apply')
     } finally {
       setApplying(false)
     }

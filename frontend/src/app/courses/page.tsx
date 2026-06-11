@@ -6,7 +6,6 @@
 'use client'
 
 import { useState, useEffect, useCallback, memo } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
@@ -14,9 +13,10 @@ import Badge from '@/modules/shared/component/Badge'
 import { courseAPI } from '@/services/api'
 import { COURSE_CATEGORIES, COURSE_LEVELS } from '@/utils/constants'
 import { AppRoutes } from '@/routes/app.routes'
+import type { Course } from '@/types'
 
 // Memoized course card
-const CourseCard = memo(({ course }: { course: any }) => (
+const CourseCard = memo(({ course }: { course: Course }) => (
   <Link
     href={AppRoutes.courseDetail(course.id)}
     className="bg-bg-card border border-border-low-contrast rounded-lg overflow-hidden hover:shadow-md transition-all group"
@@ -49,12 +49,11 @@ const CourseCard = memo(({ course }: { course: any }) => (
 CourseCard.displayName = 'CourseCard'
 
 export default function CoursesPage() {
-  const router = useRouter()
-  const [courses, setCourses] = useState<any[]>([])
+  const [courses, setCourses] = useState<Course[]>([])
   const [loading, setLoading] = useState(true)
   const [categoryFilter, setCategoryFilter] = useState('all')
   const [levelFilter, setLevelFilter] = useState('all')
-  const [cache, setCache] = useState<Record<string, any[]>>({})
+  const [cache, setCache] = useState<Record<string, Course[]>>({})
 
   const fetchCourses = useCallback(async (category: string, level: string) => {
     const cacheKey = `${category}|${level}`
@@ -72,7 +71,7 @@ export default function CoursesPage() {
         category: category === 'all' || category === 'All Categories' ? undefined : category,
         level: level === 'all' || level === 'All Levels' ? undefined : level,
       })
-      const data = response.data || []
+      const data = (response.data as Course[]) || []
       setCourses(data)
       setCache(prev => ({ ...prev, [cacheKey]: data }))
     } catch (error) {
