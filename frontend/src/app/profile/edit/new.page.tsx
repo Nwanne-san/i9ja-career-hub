@@ -93,13 +93,7 @@ export default function EditProfilePage() {
   return (
     <>
       <Navbar />
-      <main className="pt-20 pb-24 md:pb-12 px-4 sm:px-6 max-w-2xl mx-auto">
-        <button
-          onClick={() => router.back()}
-          className="mb-6 flex items-center gap-2 text-primary hover:text-primary-container transition-colors"
-        >
-          ← Back
-        </button>
+      <main className="pt-20 pb-12 px-4 sm:px-6 max-w-2xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-on-surface mb-2">Edit Profile</h1>
           <p className="text-on-surface-variant">Update your profile information</p>

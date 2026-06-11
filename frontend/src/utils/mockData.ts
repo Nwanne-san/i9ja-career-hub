@@ -1,0 +1,173 @@
+// Mock data for when API is unavailable
+export const mockThreads = [
+  {
+    id: '1',
+    title: 'Best practices for React hooks in 2025',
+    body: 'I was wondering what are the best practices for using React hooks in modern applications. Any suggestions?',
+    author: { id: 'u1', displayName: 'Chioma Dev', avatarUrl: '👩‍💻' },
+    categoryId: 'react',
+    likeCount: 24,
+    viewCount: 156,
+    replyCount: 8,
+    createdAt: new Date('2025-12-20').toISOString(),
+  },
+  {
+    id: '2',
+    title: 'How to optimize Next.js performance',
+    body: 'Share your tips and tricks for making Next.js apps lightning fast',
+    author: { id: 'u2', displayName: 'Tunde Code', avatarUrl: '👨‍💻' },
+    categoryId: 'nextjs',
+    likeCount: 45,
+    viewCount: 312,
+    replyCount: 12,
+    createdAt: new Date('2025-12-18').toISOString(),
+  },
+  {
+    id: '3',
+    title: 'TypeScript vs JavaScript - pros and cons',
+    body: 'Starting a new project and trying to decide between TS and JS. What are your experiences?',
+    author: { id: 'u3', displayName: 'Ada Coder', avatarUrl: '👩‍🔬' },
+    categoryId: 'typescript',
+    likeCount: 67,
+    viewCount: 489,
+    replyCount: 23,
+    createdAt: new Date('2025-12-15').toISOString(),
+  },
+]
+
+export const mockJobs = [
+  {
+    id: '1',
+    title: 'Senior React Developer',
+    company: 'Flutterwave',
+    location: 'Lagos, Nigeria',
+    type: 'full-time',
+    salary: '₦2.5M - 3.5M /month',
+    description: 'Looking for experienced React developers to join our growing team',
+    verified: true,
+    tags: ['React', 'TypeScript', 'Node.js'],
+  },
+  {
+    id: '2',
+    title: 'Full Stack Developer',
+    company: 'Interswitch',
+    location: 'Remote',
+    type: 'full-time',
+    salary: '₦1.8M - 2.8M /month',
+    description: 'Build scalable backend and frontend solutions',
+    verified: true,
+    tags: ['Next.js', 'Python', 'PostgreSQL'],
+  },
+  {
+    id: '3',
+    title: 'UI/UX Designer',
+    company: 'Paystack',
+    location: 'Lagos, Nigeria',
+    type: 'contract',
+    salary: '₦800k - 1.2M /month',
+    description: 'Create beautiful and intuitive user interfaces',
+    verified: false,
+    tags: ['Figma', 'Design Systems', 'User Research'],
+  },
+  {
+    id: '4',
+    title: 'DevOps Engineer',
+    company: 'Andela',
+    location: 'Remote',
+    type: 'full-time',
+    salary: '₦2M - 3M /month',
+    description: 'Manage and optimize our cloud infrastructure',
+    verified: true,
+    tags: ['AWS', 'Docker', 'Kubernetes'],
+  },
+]
+
+export const mockCourses = [
+  {
+    id: '1',
+    title: 'Master React and Next.js',
+    provider: 'Udemy',
+    level: 'Intermediate',
+    rating: 4.8,
+    free: true,
+    thumbnailEmoji: '⚛️',
+    studentCount: 15234,
+  },
+  {
+    id: '2',
+    title: 'TypeScript Complete Course',
+    provider: 'Codecademy',
+    level: 'Beginner',
+    rating: 4.6,
+    free: false,
+    thumbnailEmoji: '📘',
+    studentCount: 8901,
+  },
+  {
+    id: '3',
+    title: 'Backend with Node.js and Express',
+    provider: 'freeCodeCamp',
+    level: 'Intermediate',
+    rating: 4.9,
+    free: true,
+    thumbnailEmoji: '🚀',
+    studentCount: 21456,
+  },
+  {
+    id: '4',
+    title: 'Web Design Fundamentals',
+    provider: 'Skillshare',
+    level: 'Beginner',
+    rating: 4.5,
+    free: false,
+    thumbnailEmoji: '🎨',
+    studentCount: 5678,
+  },
+  {
+    id: '5',
+    title: 'Advanced JavaScript Patterns',
+    provider: 'Pluralsight',
+    level: 'Advanced',
+    rating: 4.7,
+    free: false,
+    thumbnailEmoji: '✨',
+    studentCount: 3421,
+  },
+  {
+    id: '6',
+    title: 'Python for Data Science',
+    provider: 'DataCamp',
+    level: 'Intermediate',
+    rating: 4.8,
+    free: false,
+    thumbnailEmoji: '🐍',
+    studentCount: 12345,
+  },
+]
+
+export const mockReplies = {
+  '1': [
+    {
+      id: 'r1',
+      body: 'Great question! I always use custom hooks for reusable logic',
+      author: { id: 'u4', displayName: 'Zainab Tech', avatarUrl: '👩‍💼' },
+      createdAt: new Date('2025-12-19').toISOString(),
+    },
+    {
+      id: 'r2',
+      body: 'Make sure to memoize your callbacks with useCallback to avoid performance issues',
+      author: { id: 'u5', displayName: 'Emeka Pro', avatarUrl: '👨‍🎓' },
+      createdAt: new Date('2025-12-19').toISOString(),
+    },
+  ]
+}
+
+export const mockSearchResults = {
+  threads: mockThreads.slice(0, 2),
+  jobs: mockJobs.slice(0, 2),
+  courses: mockCourses.slice(0, 2),
+  users: [
+    { id: 'u1', displayName: 'Chioma Dev', username: 'chioma_dev', avatarUrl: '👩‍💻', verified: true },
+    { id: 'u2', displayName: 'Tunde Code', username: 'tunde_code', avatarUrl: '👨‍💻', verified: false },
+  ],
+}

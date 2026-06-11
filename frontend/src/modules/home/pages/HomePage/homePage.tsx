@@ -12,7 +12,7 @@ import { HomeTrendingSection } from "./components/HomeTrendingSection";
 export function HomePage() {
   return (
     <SiteShell>
-      <main className="mx-auto mb-20 max-w-page px-4 pb-16 pt-16 sm:px-6 md:pb-0 md:pt-20">
+      <main className="mx-auto mb-20 max-w-page px-4 pb-24 md:pb-16 pt-16 sm:px-6 md:pt-20">
         <HomeTopAdSection />
         <HomeHeroSection />
         <HomeStatsSection />

@@ -50,10 +50,10 @@ export const HOME_FEATURED_COURSES: CourseCardData[] = [
 ];
 
 export const HOME_FORUM_CATEGORIES = [
-  { id: "career", emoji: "💼", label: "Career Advice" },
-  { id: "tech", emoji: "💻", label: "Tech Stack" },
-  { id: "money", emoji: "💰", label: "Money Talk" },
-  { id: "rent", emoji: "🏠", label: "Rent & Real Estate" },
+  { id: "career", label: "Career Advice" },
+  { id: "tech", label: "Tech Stack" },
+  { id: "money", label: "Money Talk" },
+  { id: "rent", label: "Rent & Real Estate" },
 ] as const;
 
 export const HOME_LATEST_JOBS: JobCardData[] = [

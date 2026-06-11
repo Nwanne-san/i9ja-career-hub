@@ -5,119 +5,153 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback, memo } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
+import Badge from '@/modules/shared/component/Badge'
+import { courseAPI } from '@/services/api'
+import { COURSE_CATEGORIES, COURSE_LEVELS } from '@/utils/constants'
+import { AppRoutes } from '@/routes/app.routes'
+
+// Memoized course card
+const CourseCard = memo(({ course }: { course: any }) => (
+  <Link
+    href={AppRoutes.courseDetail(course.id)}
+    className="bg-bg-card border border-border-low-contrast rounded-lg overflow-hidden hover:shadow-md transition-all group"
+  >
+    {course.thumbnailEmoji && (
+      <div className="h-40 bg-gradient-to-br from-primary-container to-primary flex items-center justify-center text-6xl">
+        {course.thumbnailEmoji}
+      </div>
+    )}
+    <div className="p-4">
+      <div className="mb-2">
+        <Badge variant="primary">{course.level}</Badge>
+      </div>
+      <h3 className="font-semibold text-on-surface group-hover:text-primary transition-colors mb-1 line-clamp-2">
+        {course.title}
+      </h3>
+      <p className="text-sm text-primary font-semibold mb-2">{course.provider}</p>
+      <div className="flex justify-between items-center text-xs text-on-surface-variant">
+        <span>⭐ {course.rating || 'N/A'}</span>
+        <span>{course.free ? '✓ Free' : 'Paid'}</span>
+      </div>
+      {course.studentCount && (
+        <p className="text-xs text-on-surface-variant mt-2">
+          {course.studentCount.toLocaleString()} students
+        </p>
+      )}
+    </div>
+  </Link>
+))
+CourseCard.displayName = 'CourseCard'
 
 export default function CoursesPage() {
+  const router = useRouter()
+  const [courses, setCourses] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [categoryFilter, setCategoryFilter] = useState('all')
+  const [levelFilter, setLevelFilter] = useState('all')
+  const [cache, setCache] = useState<Record<string, any[]>>({})
 
-  const courses = [
-    {
-      id: 1,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDIEGO62BzHqEJwtKGKm0ZY8ZcMZIbvKPlT4DCGM2nm1mPUaw9dq8SotFm_7w1G7pSoxpVLBL-m6BhXctjonjUlHB_cg6AKgz8m9GqzwatbG2fPY_2LkSZDI3IFh-RI-Is0XtlMpBobCirPHh3rNueP7uV6wm6RY7hGfzhYyAQwfCcPS01REoVOhn6l0IeumxELHjwpo-TbiOeWU1DuSX3uEwpCvpzKaIkRaT5et4IczpsbM9XEeRDoSSWkuvbcnCueh6CrnR9uJnI',
-      category: 'Design',
-      categoryColor: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
-      title: 'UI/UX Fundamentals for Startups',
-      description: 'Learn the basics of user interface and experience design',
-      instructor: 'Chioma Obi',
-      students: '2.4k',
-      rating: 4.8,
-      duration: '4 weeks',
-      price: 'Free',
-    },
-    {
-      id: 2,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuATEQn76Ol0QiSSvyst0YoPMh0rRmvP2EZcHQM9EokjBAkHiv2gMwSOkp5x_KkfA5_d72rZdrk9hWrUQ8SvYNljeP2BRcST-4Yb2N-AmepBHfp5touxEsH2Cy4i3U5GfTb0-v3BkxYFPCaJbpA92zp3uZG-vqjUbMhGUHThw2iYGfRhwVdz1gRwW9ddQrejhsYLW8eJDNSo6drpslA5rSmNA1-wAb1t1zAkOq7qp3xIHhwfp1mgyS_PhfUo9PKrn7mkFPciIHAlJbY',
-      category: 'Development',
-      categoryColor: 'bg-secondary-container text-on-secondary-container',
-      title: 'React for Nigerian Fintechs',
-      description: 'Build fintech applications with React',
-      instructor: 'Tunde James',
-      students: '5.2k',
-      rating: 4.9,
-      duration: '6 weeks',
-      price: 'Free for 3 days',
-    },
-    {
-      id: 3,
-      image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuB50OgTrAqB4RZ3WSdvvLJZQhdVO4IhWueOR6SSWpp3FSv0dJm-w78lL4Y1DSwN5b0CXK12MN_SZaAorGIinFs93mJgwmcfaIwwclnENW2kyrVrHjOGpd7OWQot5LL8VARvW4Ygivqq3PzwBHMzPv_x2o7L8ItGwD5F2DzhiUAa1n2fYKfAK7fdX-fAnootrlLpx5NLnjDYYps9ptxYkIHbZF33Z7OWu83MfJIFw_rvdPOyYFl2S9NZ-YhBkjvq7DnvCyieZ6-qBAk',
-      category: 'Business',
-      categoryColor: 'bg-primary-fixed text-on-primary-fixed-variant',
-      title: 'Product Management 101',
-      description: 'Master the fundamentals of product management',
-      instructor: 'Bola Adeyemi',
-      students: '3.1k',
-      rating: 4.7,
-      duration: '5 weeks',
-      price: 'Free',
-    },
-  ]
+  const fetchCourses = useCallback(async (category: string, level: string) => {
+    const cacheKey = `${category}|${level}`
+    
+    // Check cache first
+    if (cache[cacheKey]) {
+      setCourses(cache[cacheKey])
+      setLoading(false)
+      return
+    }
 
-  const categories = ['all', 'Design', 'Development', 'Business']
-  const filteredCourses = categoryFilter === 'all' 
-    ? courses 
-    : courses.filter(c => c.category === categoryFilter)
+    setLoading(true)
+    try {
+      const response = await courseAPI.getAll({
+        category: category === 'all' || category === 'All Categories' ? undefined : category,
+        level: level === 'all' || level === 'All Levels' ? undefined : level,
+      })
+      const data = response.data || []
+      setCourses(data)
+      setCache(prev => ({ ...prev, [cacheKey]: data }))
+    } catch (error) {
+      console.error('Failed to fetch courses', error)
+      setCourses([])
+    } finally {
+      setLoading(false)
+    }
+  }, [cache])
+
+  useEffect(() => {
+    fetchCourses(categoryFilter, levelFilter)
+  }, [categoryFilter, levelFilter, fetchCourses])
 
   return (
     <>
       <Navbar />
-      <main className="pt-16 md:pt-20 pb-16 md:pb-0 max-w-container-max mx-auto px-gutter mb-20">
+      <main className="pt-20 pb-24 md:pb-12 px-4 sm:px-6 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="py-8 sm:py-12 mb-8">
-          <h1 className="text-headline-lg font-headline-lg mb-4">Free Courses & Learning</h1>
-          <p className="text-on-surface-variant text-body-lg max-w-2xl">Upskill with industry experts and grow your career in tech</p>
+        <div className="bg-primary-container rounded-2xl p-6 sm:p-8 text-on-primary-container mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Free Courses</h1>
+          <p className="text-on-primary-container opacity-90">
+            Learn from industry experts. Free courses for Nigerian tech professionals.
+          </p>
         </div>
 
-        {/* Category Filter */}
-        <div className="flex gap-3 mb-8 overflow-x-auto pb-2">
-          {categories.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-6 py-2 rounded-full font-bold whitespace-nowrap transition-all ${
-                categoryFilter === cat
-                  ? 'bg-primary text-on-primary'
-                  : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-              }`}
-            >
-              {cat.charAt(0).toUpperCase() + cat.slice(1)}
-            </button>
-          ))}
+        {/* Filters */}
+        <div className="flex gap-4 overflow-x-auto pb-4 mb-8">
+          {/* Category Filter */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="px-4 py-2 border border-border-low-contrast rounded-lg bg-bg-base text-on-surface focus:outline-none focus:border-primary whitespace-nowrap"
+          >
+            {COURSE_CATEGORIES.map((cat) => (
+              <option key={cat} value={cat.toLowerCase()}>
+                {cat}
+              </option>
+            ))}
+          </select>
+
+          {/* Level Filter */}
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
+            className="px-4 py-2 border border-border-low-contrast rounded-lg bg-bg-base text-on-surface focus:outline-none focus:border-primary whitespace-nowrap"
+          >
+            {COURSE_LEVELS.map((level) => (
+              <option key={level} value={level.toLowerCase()}>
+                {level}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Courses Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map(course => (
-            <div key={course.id} className="bg-bg-card rounded-xl border border-border-low-contrast hover:shadow-lg transition-all overflow-hidden group">
-              <img src={course.image} alt={course.title} className="w-full h-40 object-cover group-hover:scale-105 transition-transform" />
-              
-              <div className="p-4">
-                <span className={`inline-block px-3 py-1 text-label-pill rounded-full text-xs font-bold mb-3 ${course.categoryColor}`}>
-                  {course.category}
-                </span>
-                
-                <h3 className="text-headline-md font-headline-md mb-2 line-clamp-2">{course.title}</h3>
-                <p className="text-body-sm text-on-surface-variant mb-4">{course.description}</p>
-
-                <div className="flex items-center justify-between mb-4 text-body-sm text-on-surface-variant">
-                  <span>{course.students} students</span>
-                  <span>⭐ {course.rating}</span>
+          {loading ? (
+            <>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-bg-card border border-border-low-contrast rounded-lg overflow-hidden animate-pulse">
+                  <div className="h-40 bg-surface-container-low"></div>
+                  <div className="p-4 space-y-2">
+                    <div className="h-3 bg-surface-container-low rounded w-1/3"></div>
+                    <div className="h-4 bg-surface-container-low rounded w-2/3"></div>
+                    <div className="h-3 bg-surface-container-low rounded w-1/2"></div>
+                  </div>
                 </div>
-
-                <div className="flex items-center justify-between mb-4 text-body-sm">
-                  <span className="text-on-surface-variant">{course.duration}</span>
-                  <span className="font-bold text-primary">{course.price}</span>
-                </div>
-
-                <div className="text-body-sm text-on-surface-variant mb-4">By {course.instructor}</div>
-
-                <button className="w-full bg-primary text-on-primary py-2 rounded-lg font-bold hover:bg-primary-container transition-all">
-                  Enroll Now
-                </button>
-              </div>
-            </div>
-          ))}
+              ))}
+            </>
+          ) : courses.length > 0 ? (
+            courses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))
+          ) : (
+            <p className="col-span-full text-on-surface-variant text-center py-8">
+              No courses found. Try adjusting your filters.
+            </p>
+          )}
         </div>
       </main>
       <Footer />

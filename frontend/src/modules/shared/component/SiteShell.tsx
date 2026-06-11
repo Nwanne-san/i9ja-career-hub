@@ -1,5 +1,6 @@
 import Footer from "@/modules/shared/component/Footer";
 import Navbar from "@/modules/shared/component/Navbar";
+import MobileBottomNav from "@/modules/shared/component/MobileBottomNav";
 import type { ReactNode } from "react";
 
 interface SiteShellProps {
@@ -11,6 +12,7 @@ export default function SiteShell({ children }: SiteShellProps) {
     <>
       <Navbar />
       {children}
+      <MobileBottomNav />
       <Footer />
     </>
   );

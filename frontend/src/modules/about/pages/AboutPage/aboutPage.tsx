@@ -7,7 +7,7 @@ import { AboutValues } from "./components/AboutValues";
 export function AboutPage() {
   return (
     <SiteShell>
-      <main className="mx-auto max-w-page space-y-8 px-4 pb-16 pt-16 sm:space-y-12 sm:px-6 md:pb-0 md:pt-20">
+      <main className="mx-auto max-w-page space-y-8 px-4 pb-24 md:pb-16 pt-16 sm:space-y-12 sm:px-6 md:pt-20">
         <AboutMissionHero />
         <AboutTeam />
         <AboutValues />

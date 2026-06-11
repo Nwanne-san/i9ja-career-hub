@@ -1,15 +1,16 @@
 import { cn } from "@/utils";
 import Link from "next/link";
+import { LucideIcon } from "lucide-react";
 
 interface ForumCategoryTileProps {
-  emoji: string;
+  icon?: LucideIcon;
   label: string;
   href: string;
   className?: string;
 }
 
 export default function ForumCategoryTile({
-  emoji,
+  icon: Icon,
   label,
   href,
   className,
@@ -22,7 +23,7 @@ export default function ForumCategoryTile({
         className
       )}
     >
-      <span className="text-2xl">{emoji}</span>
+      {Icon && <Icon className="h-6 w-6 text-brand-green-light" />}
       <span className="text-sm font-bold text-ink transition-colors group-hover:text-brand-green-light">
         {label}
       </span>

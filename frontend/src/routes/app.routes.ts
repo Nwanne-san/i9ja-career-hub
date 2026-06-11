@@ -2,8 +2,11 @@ export const AppRoutes = {
   home: "/",
   forums: "/forums",
   forumsNew: "/forums/new",
+  forumDetail: (id: string) => `/forums/${id}`,
   jobs: "/jobs",
+  jobDetail: (id: string) => `/jobs/${id}`,
   courses: "/courses",
+  courseDetail: (id: string) => `/courses/${id}`,
   about: "/about",
   profile: "/profile",
   profileEdit: "/profile/edit",
@@ -13,7 +16,9 @@ export const AppRoutes = {
   privacy: "/privacy",
   disclaimer: "/disclaimer",
   dmca: "/dmca",
-  authLogin: "/?auth=login",
+  login: "/login",
+  register: "/register",
+  search: "/search",
 } as const;
 
 export type AppRoute = (typeof AppRoutes)[keyof typeof AppRoutes];
