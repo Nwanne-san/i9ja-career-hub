@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
-import { Bell, Menu, Moon, Sun, X, LogOut } from "lucide-react";
+import { Bell, Menu, Moon, Sun, X, LogOut, Search } from "lucide-react";
 import Button from "@/modules/shared/component/Button";
 import { AppRoutes } from "@/routes/app.routes";
 import { NAV_LINKS } from "@/utils/constants";
@@ -18,6 +18,7 @@ import { AUTH_COOKIE_NAME } from "@/utils/constants";
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -28,6 +29,14 @@ export default function Navbar() {
   const isActive = (href: string) => pathname === href;
   const toggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`${AppRoutes.search}?q=${encodeURIComponent(searchQuery)}`);
+      setSearchQuery("");
+    }
+  };
+
   const handleLogout = () => {
     Cookies.remove(AUTH_COOKIE_NAME);
     dispatch(logout());
@@ -37,34 +46,51 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 z-50 flex h-16 w-full items-center border-b border-border-line bg-bg-base/80 backdrop-blur-md">
-      <div className="mx-auto flex h-full w-full max-w-page items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-6 sm:gap-8">
-          <Link
-            href={AppRoutes.home}
-            className="font-display text-lg font-black text-brand-green-light sm:text-xl"
-          >
-            i9ja
-          </Link>
+      <div className="mx-auto flex h-full w-full max-w-page items-center justify-between gap-3 px-3 sm:px-6">
+        {/* Logo */}
+        <Link
+          href={AppRoutes.home}
+          className="flex-shrink-0 font-display text-lg font-black text-brand-green-light sm:text-xl"
+        >
+          i9ja
+        </Link>
 
-          <nav className="hidden items-center gap-6 md:flex">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "border-b-2 pb-1 text-sm transition-colors",
-                  isActive(link.href)
-                    ? "border-brand-green font-bold text-brand-green-light"
-                    : "border-transparent text-ink-muted hover:text-brand-green-light"
-                )}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        {/* Desktop Navigation */}
+        <nav className="hidden items-center gap-6 md:flex">
+          {NAV_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={cn(
+                "border-b-2 pb-1 text-sm transition-colors",
+                isActive(link.href)
+                  ? "border-brand-green font-bold text-brand-green-light"
+                  : "border-transparent text-ink-muted hover:text-brand-green-light"
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        {/* Search Bar - Hidden on very small screens */}
+        <form
+          onSubmit={handleSearch}
+          className="hidden flex-1 max-w-xs sm:flex items-center gap-2 rounded-lg border border-border-low-contrast bg-bg-card px-3 py-1.5"
+        >
+          <Search className="h-4 w-4 text-ink-muted" />
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-sm text-on-surface placeholder-ink-muted focus:outline-none"
+          />
+        </form>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Theme Toggle */}
           <button
             type="button"
             onClick={toggleTheme}
@@ -78,6 +104,7 @@ export default function Navbar() {
             )}
           </button>
 
+          {/* Notifications */}
           {isAuthenticated && (
             <button
               type="button"
@@ -93,22 +120,23 @@ export default function Navbar() {
             </button>
           )}
 
-          <div className="hidden items-center gap-2 sm:flex">
+          {/* Desktop Auth Buttons */}
+          <div className="hidden items-center gap-1.5 sm:gap-2 sm:flex">
             {isAuthenticated ? (
               <div className="relative">
                 <button
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-2 rounded-full bg-bg-card px-3 py-1.5 hover:bg-surface-container-low"
+                  className="flex items-center gap-1.5 sm:gap-2 rounded-full bg-bg-card px-2 sm:px-3 py-1.5 hover:bg-surface-container-low transition-colors"
                 >
                   <img
                     src={user?.avatarUrl || "https://via.placeholder.com/32"}
                     alt={user?.displayName}
-                    className="h-6 w-6 rounded-full"
+                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-full"
                   />
-                  <span className="text-sm font-medium text-primary">{user?.displayName}</span>
+                  <span className="hidden sm:inline text-sm font-medium text-primary">{user?.displayName}</span>
                 </button>
                 {isProfileMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-lg bg-bg-card border border-border-low-contrast shadow-lg">
+                  <div className="absolute right-0 mt-2 w-48 rounded-lg bg-bg-card border border-border-low-contrast shadow-lg z-50">
                     <Link
                       href={AppRoutes.profile}
                       className="block px-4 py-2 text-sm text-on-surface hover:bg-surface-container-low rounded-t-lg"
@@ -133,19 +161,20 @@ export default function Navbar() {
               </div>
             ) : (
               <>
-                <Button href={AppRoutes.login} variant="ghost" className="px-4 py-2">
+                <Button href={AppRoutes.login} variant="ghost" className="px-3 py-1.5 text-sm">
                   Login
                 </Button>
-                <Button href={AppRoutes.register} className="rounded-xl px-5 py-2">
+                <Button href={AppRoutes.register} className="rounded-lg px-3 sm:px-4 py-1.5 text-sm">
                   Join Free
                 </Button>
               </>
             )}
           </div>
 
+          {/* Mobile Menu Toggle */}
           <button
             type="button"
-            className="rounded-lg p-2 text-ink md:hidden"
+            className="rounded-lg p-2 text-ink sm:hidden"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -154,42 +183,62 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {isMenuOpen && (
-        <div className="absolute left-0 right-0 top-16 border-b border-border-line bg-bg-base md:hidden">
-          <div className="flex flex-col gap-3 px-4 py-4">
+        <div className="absolute left-0 right-0 top-16 border-b border-border-line bg-bg-base sm:hidden max-h-[calc(100vh-64px)] overflow-y-auto">
+          <div className="flex flex-col gap-2 px-3 py-3">
+            {/* Mobile Search */}
+            <form
+              onSubmit={handleSearch}
+              className="flex items-center gap-2 rounded-lg border border-border-low-contrast bg-bg-card px-3 py-2 mb-2"
+            >
+              <Search className="h-4 w-4 text-ink-muted flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-transparent text-sm text-on-surface placeholder-ink-muted focus:outline-none"
+              />
+            </form>
+
+            {/* Mobile Nav Links */}
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMenuOpen(false)}
                 className={cn(
-                  "py-2 text-sm font-semibold",
-                  isActive(link.href) ? "text-brand-green-light" : "text-ink-muted"
+                  "px-3 py-2 text-sm font-semibold rounded-lg transition-colors",
+                  isActive(link.href) 
+                    ? "text-brand-green-light bg-brand-green-light/10" 
+                    : "text-ink-muted hover:text-ink hover:bg-bg-card"
                 )}
               >
                 {link.label}
               </Link>
             ))}
-            <div className="flex gap-2 border-t border-border-line pt-3">
+
+            <div className="border-t border-border-line pt-3 mt-2 flex flex-col gap-2">
               {isAuthenticated ? (
                 <>
-                  <Button href={AppRoutes.profile} variant="ghost" className="flex-1">
+                  <Button href={AppRoutes.profile} variant="ghost" className="w-full justify-center text-sm">
                     Profile
                   </Button>
                   <Button
                     onClick={handleLogout}
                     variant="danger"
-                    className="flex-1"
+                    className="w-full justify-center text-sm"
                   >
                     Logout
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button href={AppRoutes.login} variant="ghost" className="flex-1">
+                  <Button href={AppRoutes.login} variant="ghost" className="w-full justify-center text-sm">
                     Login
                   </Button>
-                  <Button href={AppRoutes.register} className="flex-1">
+                  <Button href={AppRoutes.register} className="w-full justify-center text-sm">
                     Join Free
                   </Button>
                 </>

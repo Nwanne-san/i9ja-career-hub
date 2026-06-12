@@ -21,28 +21,48 @@ import type { Job } from '@/types'
 const JobCard = memo(({ job, isSaved }: { job: Job; isSaved: boolean }) => (
   <Link
     href={AppRoutes.jobDetail(job.id)}
-    className="block bg-bg-card border border-border-low-contrast rounded-lg p-4 hover:shadow-md transition-all"
+    className="block bg-bg-card border border-border-low-contrast hover:border-primary rounded-lg p-3 sm:p-4 hover:shadow-lg transition-all h-full"
   >
-    <div className="flex justify-between items-start gap-4">
-      <div className="flex-1">
-        <div className="flex gap-2 items-center mb-1">
-          <h3 className="font-semibold text-on-surface text-lg">{job.title}</h3>
-          {job.verified && <span className="text-xs bg-success-green text-white px-2 py-1 rounded">✓ Verified</span>}
-        </div>
-        <p className="text-primary font-semibold mb-2">{job.company}</p>
-        <div className="flex gap-3 items-center text-sm text-on-surface-variant mb-2">
-          <span>📍 {job.location}</span>
-          <Badge variant="primary">{job.type}</Badge>
-          {job.salary && <span>💰 {job.salary}</span>}
-        </div>
-        <p className="text-sm text-on-surface-variant line-clamp-1">{job.description}</p>
+    <div className="flex flex-col gap-3 h-full">
+      {/* Header with title and verified badge */}
+      <div className="flex items-start justify-between gap-2 min-w-0">
+        <h3 className="font-semibold text-on-surface text-sm sm:text-base leading-tight flex-1 line-clamp-2">{job.title}</h3>
+        {job.verified && (
+          <span className="flex-shrink-0 text-xs bg-success-green text-white px-2 py-0.5 rounded-full whitespace-nowrap">
+            ✓ Verified
+          </span>
+        )}
       </div>
-      <button
-        onClick={(e) => e.preventDefault()}
-        className="text-2xl hover:scale-125 transition-transform"
-      >
-        {isSaved ? '💾' : '📌'}
-      </button>
+
+      {/* Company name */}
+      <p className="text-xs sm:text-sm text-primary font-semibold">{job.company}</p>
+
+      {/* Location, type, and salary */}
+      <div className="flex flex-wrap gap-2 text-xs sm:text-sm text-on-surface-variant">
+        <span className="flex items-center gap-1">📍 {job.location}</span>
+        <span>•</span>
+        <Badge variant="primary" className="text-xs">{job.type}</Badge>
+        {job.salary && (
+          <>
+            <span>•</span>
+            <span>💰 {job.salary}</span>
+          </>
+        )}
+      </div>
+
+      {/* Description - takes remaining space */}
+      <p className="text-xs sm:text-sm text-on-surface-variant line-clamp-2 flex-1">{job.description}</p>
+
+      {/* Save button at bottom */}
+      <div className="flex items-center justify-end pt-2 border-t border-border-low-contrast">
+        <button
+          onClick={(e) => e.preventDefault()}
+          className="text-lg sm:text-xl hover:scale-110 transition-transform"
+          title={isSaved ? 'Unsave job' : 'Save job'}
+        >
+          {isSaved ? '💾' : '📌'}
+        </button>
+      </div>
     </div>
   </Link>
 ))
@@ -112,17 +132,17 @@ export default function JobsPage() {
 
         {/* Search & Filters */}
         <div className="space-y-4 mb-8">
-          <form onSubmit={handleSearch} className="flex gap-2">
+          <form onSubmit={handleSearch} className="flex gap-2 w-full flex-col sm:flex-row">
             <input
               type="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search jobs..."
-              className="flex-1 px-4 py-2 border border-border-low-contrast rounded-lg bg-bg-base text-on-surface focus:outline-none focus:border-primary"
+              className="w-full px-3 sm:px-4 py-2 text-sm sm:text-base border border-border-low-contrast rounded-lg bg-bg-base text-on-surface focus:outline-none focus:border-primary"
             />
             <button
               type="submit"
-              className="px-6 py-2 bg-primary text-on-primary rounded-lg font-semibold hover:bg-primary/90"
+              className="w-full sm:w-auto px-4 sm:px-6 py-2 text-sm sm:text-base bg-primary text-on-primary rounded-lg font-semibold hover:bg-primary/90 whitespace-nowrap"
             >
               Search
             </button>
@@ -159,9 +179,9 @@ export default function JobsPage() {
         </div>
 
         {/* Jobs List */}
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            <div className="space-y-4">
+            <>
               {[1, 2, 3].map((i) => (
                 <div key={i} className="bg-bg-card border border-border-low-contrast rounded-lg p-4 animate-pulse">
                   <div className="h-5 bg-surface-container-low rounded w-2/3 mb-2"></div>
@@ -170,7 +190,7 @@ export default function JobsPage() {
                   <div className="h-3 bg-surface-container-low rounded w-2/3"></div>
                 </div>
               ))}
-            </div>
+            </>
           ) : jobs.length > 0 ? (
             jobs.map((job) => (
               <JobCard 
@@ -180,9 +200,11 @@ export default function JobsPage() {
               />
             ))
           ) : (
-            <p className="text-on-surface-variant text-center py-8">
-              No jobs found. Try adjusting your filters.
-            </p>
+            <div className="col-span-full">
+              <p className="text-on-surface-variant text-center py-8">
+                No jobs found. Try adjusting your filters.
+              </p>
+            </div>
           )}
         </div>
       </main>

@@ -2,8 +2,8 @@ export const SITE_NAME = "i9ja.com";
 export const SITE_TAGLINE =
   "Nigeria's community platform for jobs, free courses and real discussions. Built by Nigerians, for Nigerians.";
 
-export const CONTACT_EMAIL = "hello@i9ja.com";
-export const CONTACT_WHATSAPP = "https://wa.me/2348000000000";
+export const CONTACT_EMAIL = "atalorehijiator@gmail.com";
+export const CONTACT_WHATSAPP = "https://wa.me/2347061769157?text=Contact%20us%20for%20adverts";
 
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
