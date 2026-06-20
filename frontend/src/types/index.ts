@@ -19,6 +19,8 @@ export interface User {
   threadCount?: number;
   replyCount?: number;
   savedJobsCount?: number;
+  joinedAt?: string;
+  website?: string;
 }
 
 export interface Thread {
@@ -47,27 +49,39 @@ export interface Job {
   title: string;
   company: string;
   location: string;
-  remote: boolean;
+  remote?: boolean;
   salary?: string;
-  type: "full-time" | "freelance" | "internship" | "nysc";
+  type: "full-time" | "freelance" | "internship" | "nysc" | "contract";
   verified: boolean;
-  category: string;
+  category?: string;
   postedAt: string;
   applyUrl?: string;
   description?: string;
+  logoUrl?: string;
+  logoBg?: "primary-fixed" | "surface-container";
+  matchPercent?: number;
+  tags?: string[];
 }
+
+export type CourseLevel = "beginner" | "intermediate" | "advanced";
 
 export interface Course {
   id: string;
   title: string;
   provider: string;
-  level: "beginner" | "intermediate" | "advanced";
+  level: CourseLevel;
   category: string;
   rating?: number;
   studentCount?: number;
-  url: string;
+  url?: string;
   free: boolean;
   thumbnailEmoji?: string;
+  imageUrl?: string;
+  imageBg?: string;
+  duration?: string;
+  verified?: boolean;
+  providerInitials?: string;
+  providerAvatarBg?: string;
 }
 
 export type NotificationType =
@@ -84,4 +98,51 @@ export interface Notification {
   read: boolean;
   createdAt: string;
   href?: string;
+}
+
+export interface ForumCategory {
+  id: string;
+  name: string;
+  emoji: string;
+  accent: string;
+}
+
+export interface SearchResults {
+  threads: Thread[];
+  jobs: Job[];
+  courses: Course[];
+  users: User[];
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: { pos: number; delta: number; count: number };
+}
+
+export interface JobsQueryParams {
+  search?: string;
+  location?: string;
+  workMode?: string;
+  verifiedOnly?: boolean;
+  type?: string;
+  page?: number;
+}
+
+export interface CoursesQueryParams {
+  category?: string;
+  level?: string;
+  search?: string;
+  page?: number;
+}
+
+export interface ThreadsQueryParams {
+  category?: string;
+  search?: string;
+  page?: number;
+}
+
+export interface ReportFormData {
+  reason: string;
+  details: string;
+  url?: string;
 }

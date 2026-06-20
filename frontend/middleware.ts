@@ -14,11 +14,11 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const hasToken = request.cookies.has("i9ja_token");
+  const token = request.cookies.get("i9ja_token")?.value;
+  const hasValidToken = Boolean(token && token.trim().length >= 8);
 
-  if (!hasToken) {
-    const loginUrl = new URL("/", request.url);
-    loginUrl.searchParams.set("auth", "login");
+  if (!hasValidToken) {
+    const loginUrl = new URL("/auth", request.url);
     loginUrl.searchParams.set("returnUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }

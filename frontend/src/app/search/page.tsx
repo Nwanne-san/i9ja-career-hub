@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
@@ -9,41 +9,47 @@ import Link from 'next/link'
 import { AppRoutes } from '@/routes/app.routes'
 import type { Thread, Job, Course, User } from '@/types'
 
+const EMPTY_RESULTS = {
+  threads: [] as Thread[],
+  jobs: [] as Job[],
+  courses: [] as Course[],
+  users: [] as User[],
+}
+
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const query = searchParams.get('q') || ''
-  const [results, setResults] = useState<{
-    threads: Thread[]
-    jobs: Job[]
-    courses: Course[]
-    users: User[]
-  }>({
-    threads: [],
-    jobs: [],
-    courses: [],
-    users: [],
-  })
+  const [results, setResults] = useState(EMPTY_RESULTS)
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState(query)
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!searchQuery.trim()) return
+  const runSearch = useCallback(async (term: string) => {
+    if (!term.trim()) return
 
     setLoading(true)
     try {
-      const res = await searchAPI.global(searchQuery)
-      setResults(res.data as {
-        threads: Thread[]
-        jobs: Job[]
-        courses: Course[]
-        users: User[]
-      })
+      const res = await searchAPI.global(term)
+      setResults(
+        (res.data as typeof EMPTY_RESULTS) ?? EMPTY_RESULTS
+      )
     } catch (error) {
       console.error('Search failed', error)
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    if (query.trim()) {
+      setSearchQuery(query)
+      runSearch(query)
+    }
+  }, [query, runSearch])
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!searchQuery.trim()) return
+    await runSearch(searchQuery)
   }
 
   return (

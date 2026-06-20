@@ -12,12 +12,13 @@ import { cn } from "@/utils";
 import { useSelector, useDispatch } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { logout } from "@/redux/store/slices/authSlice";
-import Cookies from "js-cookie";
-import { AUTH_COOKIE_NAME } from "@/utils/constants";
+import { clearAuthCookie } from "@/utils/authSession";
+import NotificationsPanel from "@/modules/shared/component/NotificationsPanel/notificationsPanel";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [notificationAnchor, setNotificationAnchor] = useState<HTMLElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const pathname = usePathname();
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    Cookies.remove(AUTH_COOKIE_NAME);
+    clearAuthCookie();
     dispatch(logout());
     setIsProfileMenuOpen(false);
     router.push("/");
@@ -106,18 +107,26 @@ export default function Navbar() {
 
           {/* Notifications */}
           {isAuthenticated && (
-            <button
-              type="button"
-              aria-label="Notifications"
-              className="relative rounded-full p-2 text-ink-muted transition-colors hover:bg-bg-card hover:text-ink"
-            >
-              <Bell className="h-4 w-4" />
-              {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 inline-flex h-3 w-3 items-center justify-center rounded-full bg-error text-xs text-white">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+            <>
+              <button
+                type="button"
+                aria-label="Notifications"
+                onClick={(e) => setNotificationAnchor(e.currentTarget)}
+                className="relative rounded-full p-2 text-ink-muted transition-colors hover:bg-bg-card hover:text-ink"
+              >
+                <Bell className="h-4 w-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 inline-flex h-3 w-3 items-center justify-center rounded-full bg-error text-xs text-white">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
+              </button>
+              <NotificationsPanel
+                anchorEl={notificationAnchor}
+                open={Boolean(notificationAnchor)}
+                onClose={() => setNotificationAnchor(null)}
+              />
+            </>
           )}
 
           {/* Desktop Auth Buttons */}
@@ -125,15 +134,16 @@ export default function Navbar() {
             {isAuthenticated ? (
               <div className="relative">
                 <button
+                  type="button"
                   onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                  className="flex items-center gap-1.5 sm:gap-2 rounded-full bg-bg-card px-2 sm:px-3 py-1.5 hover:bg-surface-container-low transition-colors"
+                  aria-label="Open profile menu"
+                  className="rounded-full transition-opacity hover:opacity-90"
                 >
                   <img
                     src={user?.avatarUrl || "https://via.placeholder.com/32"}
                     alt={user?.displayName}
-                    className="h-5 w-5 sm:h-6 sm:w-6 rounded-full"
+                    className="h-8 w-8 rounded-full border border-primary object-cover"
                   />
-                  <span className="hidden sm:inline text-sm font-medium text-primary">{user?.displayName}</span>
                 </button>
                 {isProfileMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 rounded-lg bg-bg-card border border-border-low-contrast shadow-lg z-50">

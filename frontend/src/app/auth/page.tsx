@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useDispatch } from 'react-redux'
 import { useForm } from 'react-hook-form'
@@ -12,6 +12,13 @@ import { setCredentials } from '@/redux/store/slices/authSlice'
 import { apiClient } from '@/services/api'
 import Navbar from '@/modules/shared/component/Navbar'
 import Footer from '@/modules/shared/component/Footer'
+import {
+  createMockAuthSession,
+  getSafeReturnUrl,
+  isAuthResponse,
+  setAuthCookie,
+  shouldUseMockAuth,
+} from '@/utils/authSession'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -31,8 +38,20 @@ const registerSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>
 type RegisterFormData = z.infer<typeof registerSchema>
 
+function commitAuthSession(
+  dispatch: ReturnType<typeof useDispatch>,
+  session: { accessToken: string; user: ReturnType<typeof createMockAuthSession>['user'] }
+) {
+  dispatch(setCredentials(session))
+  setAuthCookie(session.accessToken)
+}
+
 export default function AuthPage() {
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get('tab') === 'register' ? 'register' : 'login'
+  const returnUrl = getSafeReturnUrl(searchParams.get('returnUrl'))
+
+  const [authMode, setAuthMode] = useState<'login' | 'register'>(initialTab)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
@@ -46,6 +65,10 @@ export default function AuthPage() {
     resolver: zodResolver(registerSchema),
   })
 
+  useEffect(() => {
+    setAuthMode(searchParams.get('tab') === 'register' ? 'register' : 'login')
+  }, [searchParams])
+
   const onLoginSubmit = async (data: LoginFormData) => {
     setIsLoading(true)
     setError(null)
@@ -54,11 +77,22 @@ export default function AuthPage() {
         email: data.email,
         password: data.password,
       })
-      const { accessToken, user } = response.data
-      dispatch(setCredentials({ accessToken, user }))
-      router.push('/')
-    } catch {
-      setError('Login failed. Please try again.')
+
+      if (isAuthResponse(response.data)) {
+        commitAuthSession(dispatch, response.data)
+        router.push(returnUrl)
+        return
+      }
+
+      throw new Error('Invalid login response')
+    } catch (err) {
+      if (shouldUseMockAuth(err)) {
+        const mockSession = createMockAuthSession(data.email)
+        commitAuthSession(dispatch, mockSession)
+        router.push(returnUrl)
+        return
+      }
+      setError('Login failed. Please check your credentials.')
     } finally {
       setIsLoading(false)
     }
@@ -73,10 +107,21 @@ export default function AuthPage() {
         email: data.email,
         password: data.password,
       })
-      const { accessToken, user } = response.data
-      dispatch(setCredentials({ accessToken, user }))
-      router.push('/')
-    } catch {
+
+      if (isAuthResponse(response.data)) {
+        commitAuthSession(dispatch, response.data)
+        router.push(returnUrl)
+        return
+      }
+
+      throw new Error('Invalid register response')
+    } catch (err) {
+      if (shouldUseMockAuth(err)) {
+        const mockSession = createMockAuthSession(data.email, data.displayName)
+        commitAuthSession(dispatch, mockSession)
+        router.push(returnUrl)
+        return
+      }
       setError('Registration failed. Please try again.')
     } finally {
       setIsLoading(false)

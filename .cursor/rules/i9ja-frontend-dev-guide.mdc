@@ -1,0 +1,145 @@
+---
+description: i9ja Career Hub frontend checklist — pages, types, UX, validations, known gaps
+globs: frontend/**/*
+alwaysApply: false
+---
+
+# i9ja Career Hub — Frontend Developer Guide
+
+Use this checklist before opening a PR. Endpoints are out of scope for now; focus on UI, types, content, and client behavior.
+
+## Architecture
+
+**Module pattern is required for all new and refactored pages.**
+
+| Pattern | Routes | Structure |
+|---------|--------|-----------|
+| Module (required) | `/`, `/about`, `/jobs`, `/courses`, `/forums`, detail pages, profile | `app/*/page.tsx` → thin re-export → `modules/{domain}/pages/{Domain}Page/` |
+| Inline (legacy — migrate when touched) | auth, search, legal (until extracted) | Full UI in `app/**/page.tsx` |
+
+**Module folder layout** (copy Jobs, Courses, or Forums):
+
+```
+modules/{domain}/pages/{Domain}Page/
+  {domain}Page.tsx          # "use client", SiteShell, data fetching
+  {domain}Page.content.ts   # copy, filter labels, constants (no JSX)
+  index.ts
+  components/               # filters, cards, skeleton, empty state, sidebar
+```
+
+- `SiteShell` = Navbar + children + Footer only. **Never** render `MobileBottomNav` inside `SiteShell` or page components — it lives in `app/layout.tsx` only.
+- Route constants: `frontend/src/routes/app.routes.ts`. Add new routes there first.
+
+## Data layer
+
+See **`i9ja-data-layer.mdc`** for full detail. Summary:
+
+- API calls: `utils/client.ts` → `services/*.service.ts`
+- Fetch: `useQueryService`; mutate: `useMutationService`; infinite: `useInfiniteQueryService`
+- Filters: `useFilter` hook
+- Mocks: `utils/mockData.ts` via `mockData` option on queries
+- Forms: **Zod** + react-hook-form; use `CWTextField` / shared form fields when ported
+
+## URL state
+
+- Pages linked with `?q=`, `?category=`, `?page=` must read `useSearchParams()` on mount and apply filters immediately.
+- Search page auto-runs when `?q=` is present (not only on form submit).
+
+## Shared components
+
+- **DataRenderer** — loading / empty / error / retry on list and detail pages
+- **PaginationControls** — shared pagination with rows-per-page (not one-off per page)
+- **EmptyState** + **MaterialIcon** — empty states; distinct copy for errors
+- **ConfirmModal**, **Dropdown**, **TextField**, **DatePicker** — MUI allowed; restyle via `theme/muiTheme.ts` + i9ja Tailwind tokens
+
+## Page completion checklist
+
+Every user-facing route should have:
+
+- [ ] **Loading**: skeleton component (not plain "Loading..." text)
+- [ ] **Empty state**: shared `EmptyState` + `MaterialIcon`
+- [ ] **Error state**: user-readable message (`DataRenderer` or React Query `isError`)
+- [ ] **Content file**: strings in `*.content.ts`
+- [ ] **Types**: domain data from `@/types`; Zod for forms
+- [ ] **Auth gates**: redirect or message when login required
+- [ ] **URL params**: read and apply on mount
+
+**Reference implementations:** `JobsPage`, `CoursesPage`, `ForumsPage`.
+
+## Types (`frontend/src/types/index.ts`)
+
+- Import domain types from `@/types`. No parallel `*CardData` unless intentional view-models.
+- Update interfaces when mock data changes.
+- Query param types (`JobsQueryParams`, etc.) live in `@/types`.
+- Key types: `SearchResults`, `ForumCategory`, `PaginatedResponse<T>`, `ReportFormData`.
+- `Job.postedAt` may be ISO or relative display string — use `formatJobPostedAt()` helper, not raw `new Date()`.
+
+## Validations and forms
+
+- **Zod** + react-hook-form for all forms.
+- Field-level errors under inputs; top banner for API/auth failures.
+- Primary auth route: `/auth`. `/login` and `/register` redirect to `/auth`.
+- Forgot password: `/auth/forgot-password`.
+
+## Navigation and linking
+
+- Top nav: Home, Forums, Jobs, Courses (`NAV_LINKS` in `utils/constants.ts`).
+- Link cards to detail routes (`/jobs/[id]`, `/courses/[id]`, `/forums/[id]`).
+- Use `AppRoutes` helpers, not hardcoded paths.
+- Public profiles: `/u/[username]`.
+
+## Build order (priority)
+
+1. Cursor rules + layout fix (single mobile nav)
+2. URL params (search, jobs `?q=`, forums `?category=`)
+3. Core data layer (client, services, query hooks)
+4. Shared CW components (DataRenderer, Pagination, forms)
+5. Forums module extraction
+6. Detail page modules
+7. Unify types + mock data
+8. Profile + public profile
+9. Auth consolidation + forgot password
+10. Legal copy
+11. Notifications UI (mock-backed)
+
+## Skeletons and empty states
+
+- List pages: pulse skeleton matching card layout (`JobsSkeleton`, `ForumsSkeleton`, etc.).
+- Detail pages: hero + body skeleton blocks.
+- Wrap domain empty states around shared `EmptyState`.
+
+## Copy and content
+
+- Plain language; no AI filler (see freelance-human-writing rules).
+- Legal pages use `*.content.ts` files with real copy.
+
+## Known bugs — status
+
+Fixed in unified build (verify before re-opening):
+- Double mobile nav — fixed in `SiteShell`
+- Search / jobs / forums URL params — wired on mount
+- Notification bell — mock-backed panel
+- Orphan `profile/edit/new.page.tsx` — removed
+
+Still watch when touching related code:
+- Profile stats labels (reputation vs followers)
+- Report page submit (wire when API exists)
+
+## Pre-PR checklist
+
+- [ ] Module pattern if touching a legacy inline page
+- [ ] Loading skeleton + empty + error states
+- [ ] URL params wired if page accepts query strings
+- [ ] Types and mock data updated together
+- [ ] No duplicate `MobileBottomNav`
+- [ ] Copy in `*.content.ts`, not inline JSX
+- [ ] Data layer uses `*.service.ts` + hooks (not raw `api.ts` in new code)
+- [ ] `npm run build` passes in `frontend/`
+
+## Pre-PR quick test
+
+1. Page loads without console errors in dev.
+2. Loading → content → empty filter path look intentional.
+3. Mobile: single bottom nav, no overlapping footers.
+4. Mock fallback works when API is unreachable.
+5. `npm run build` or `tsc --noEmit` passes.

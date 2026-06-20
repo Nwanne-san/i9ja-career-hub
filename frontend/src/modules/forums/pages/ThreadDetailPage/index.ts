@@ -1,0 +1,1 @@
+export { ThreadDetailPage } from "./threadDetailPage";

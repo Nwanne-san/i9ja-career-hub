@@ -1,0 +1,131 @@
+---
+description: i9ja data layer — client, services, React Query hooks, Redux auth
+globs: frontend/src/{utils,services,redux}/**/*
+alwaysApply: false
+---
+
+# i9ja Data Layer
+
+Use when editing `utils/`, `services/`, or `redux/`. Full page checklist lives in `i9ja-frontend-dev-guide.mdc`.
+
+## Request flow
+
+```
+Page/hook → useQueryService | useMutationService | useInfiniteQueryService
+         → utils/client.ts
+         → services/*.service.ts (path + method)
+         → NEXT_PUBLIC_API_URL
+```
+
+## Service file template
+
+```ts
+import { ApiMethods } from "@/utils/client";
+
+const root = "/jobs";
+
+const endpoints = {
+  getAll: { path: root, method: ApiMethods.GET },
+  getById: (id: string) => ({ path: `${root}/${id}`, method: ApiMethods.GET }),
+};
+
+export function generateJobServices() {
+  return { getAll: endpoints.getAll, getById: endpoints.getById };
+}
+
+export const jobServices = generateJobServices();
+```
+
+- Paths use i9ja routes (`/jobs`, `/auth/login`) — not CW's `/api/v1/...`.
+- Request/response interfaces live in the same service file or `@/types`.
+
+## Query hooks
+
+**List/detail fetch:**
+
+```ts
+useQueryService({
+  service: { ...jobServices.getAll, data: params },
+  options: {
+    keys: queryKeys.jobs(params),
+    staleTime: 60_000,
+    mockData: mockJobs,
+    enableMockFallback: true,
+  },
+});
+```
+
+**Mutations:**
+
+```ts
+useMutationService({
+  service: jobServices.saveJob,
+  options: {
+    invalidateKeys: ["jobs"],
+    successMessage: "Job saved",
+  },
+});
+```
+
+**Infinite lists (notifications, etc.):**
+
+```ts
+useInfiniteQueryService({
+  service: { ...notificationServices.getAll, data: { delta: 15 } },
+  options: { keys: queryKeys.notifications() },
+});
+```
+
+## Filters
+
+Use `useFilter` from `@/utils/hooks/useFilter` — not scattered `useState` per field.
+
+```ts
+const { filters, applyFilters, clearFilters, setFilter } = useFilter({
+  search: "",
+  page: 1,
+});
+```
+
+## Mock fallback
+
+- Active mocks: `frontend/src/utils/mockData.ts` only.
+- Pass `mockData` + `enableMockFallback: true` to `useQueryService`.
+- When API is down or returns `{ success: false, fromMock: true }`, hooks return mock data with ~300ms delay.
+
+## Query keys
+
+Define in `frontend/src/services/queryService.ts`:
+
+```ts
+export const queryKeys = {
+  jobs: (params?: JobsQueryParams) => ["jobs", params] as const,
+};
+```
+
+## Redux auth
+
+- Slice key is `auth` (not CW's `authentication`).
+- State: `accessToken`, `user`, `isAuthenticated`.
+- Token also mirrored in cookie `i9ja_token` for middleware.
+
+## Pagination
+
+- **Client page numbers:** Jobs list uses `page` + client slice until API confirms `pos/delta`.
+- **Server cursor:** `PaginationData { pos, delta, count }` for infinite query and future table APIs.
+- `ITEMS_PER_PAGE = 15` in `modules/shared/constant.ts`.
+
+## Toasts
+
+`useMutationService` calls `showToast` from `@/utils/toast.ts` on success/error.
+
+## Protected routes
+
+- Server: `frontend/middleware.ts` checks `i9ja_token` cookie.
+- Client: `ProtectedLayout` (when added) for dashboard-style routes.
+- Protected prefixes live in `routes/app.routes.ts`.
+
+## Deprecated
+
+- `services/api.ts` — re-export shim only; new code uses `*.service.ts` + hooks.
+- Do not import `services/mockData.ts` (deleted).

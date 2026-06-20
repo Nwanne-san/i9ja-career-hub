@@ -38,6 +38,9 @@ const notificationSlice = createSlice({
       });
       state.unreadCount = 0;
     },
+    setUnreadCount: (state, action: PayloadAction<number>) => {
+      state.unreadCount = action.payload;
+    },
     removeNotification: (state, action: PayloadAction<string>) => {
       const notification = state.notifications.find((n) => n.id === action.payload);
       if (notification && !notification.read) {
@@ -53,6 +56,7 @@ export const {
   addNotification,
   markAsRead,
   markAllAsRead,
+  setUnreadCount,
   removeNotification,
 } = notificationSlice.actions;
 

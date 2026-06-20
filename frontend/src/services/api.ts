@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use services/*.service.ts with useQueryService / useMutationService.
+ * This file remains as a compatibility shim for legacy imports.
+ */
 import axios from "axios";
 import Cookies from "js-cookie";
 import { AUTH_COOKIE_NAME } from "@/utils/constants";
@@ -25,13 +29,31 @@ apiClient.interceptors.request.use((config) => {
 apiClient.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
-    if (error instanceof Object && 'response' in error) {
-      const response = (error as Record<string, unknown>).response as Record<string, unknown>
+    if (error instanceof Object && "response" in error) {
+      const response = (error as Record<string, unknown>).response as Record<
+        string,
+        unknown
+      >;
       if (response?.status === 401 && typeof window !== "undefined") {
         Cookies.remove(AUTH_COOKIE_NAME);
       }
     }
-    // Return mock data on connection errors instead of rejecting
+
+    const config =
+      error instanceof Object && "config" in error
+        ? ((error as Record<string, unknown>).config as
+            | { method?: string; url?: string }
+            | undefined)
+        : undefined;
+    const method = config?.method?.toUpperCase() ?? "GET";
+    const url = config?.url ?? "";
+
+    // Mutations and auth must reject so callers can handle failures correctly.
+    if (["POST", "PUT", "DELETE", "PATCH"].includes(method) || url.includes("/auth/")) {
+      return Promise.reject(error);
+    }
+
+    // GET reads fall back to mock data via apiWithFallback.
     return Promise.resolve({ data: { success: false, fromMock: true } });
   }
 );

@@ -16,9 +16,12 @@ export const AppRoutes = {
   privacy: "/privacy",
   disclaimer: "/disclaimer",
   dmca: "/dmca",
-  login: "/login",
-  register: "/register",
+  auth: "/auth",
+  authForgotPassword: "/auth/forgot-password",
+  login: "/auth",
+  register: "/auth?tab=register",
   search: "/search",
+  publicProfile: (username: string) => `/u/${username}`,
 } as const;
 
 export type AppRoute = (typeof AppRoutes)[keyof typeof AppRoutes];

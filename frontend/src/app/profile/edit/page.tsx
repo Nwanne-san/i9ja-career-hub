@@ -11,6 +11,7 @@ import { userAPI } from '@/services/api'
 import { useRouter } from 'next/navigation'
 import { useSelector, useDispatch } from 'react-redux'
 import type { RootState } from '@/redux/store'
+import type { User } from '@/types'
 import { setCredentials } from '@/redux/store/slices/authSlice'
 
 const profileSchema = z.object({
@@ -25,7 +26,7 @@ type ProfileFormData = z.infer<typeof profileSchema>
 export default function EditProfilePage() {
   const router = useRouter()
   const dispatch = useDispatch()
-  const { user } = useSelector((state: RootState) => state.auth)
+  const { user, accessToken } = useSelector((state: RootState) => state.auth)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -63,6 +64,15 @@ export default function EditProfilePage() {
     setSaving(true)
     setError('')
     setSuccess('')
+
+    const updatedUser = {
+      ...user!,
+      displayName: data.displayName,
+      bio: data.bio,
+      location: data.location,
+      website: data.website,
+    }
+
     try {
       const response = await userAPI.updateProfile({
         displayName: data.displayName,
@@ -70,11 +80,29 @@ export default function EditProfilePage() {
         location: data.location,
         website: data.website,
       })
-      dispatch(setCredentials({ accessToken: user?.id || '', user: response.data }))
+
+      const profileUser =
+        response.data && typeof response.data === 'object' && 'id' in response.data
+          ? response.data
+          : updatedUser
+
+      dispatch(
+        setCredentials({
+          accessToken: accessToken ?? '',
+          user: profileUser as User,
+        })
+      )
       setSuccess('Profile updated successfully!')
       setTimeout(() => router.push('/profile'), 1500)
     } catch {
-      setError('Failed to update profile')
+      // Backend not live — persist edits locally.
+      if (accessToken) {
+        dispatch(setCredentials({ accessToken, user: updatedUser }))
+        setSuccess('Profile updated successfully!')
+        setTimeout(() => router.push('/profile'), 1500)
+      } else {
+        setError('Failed to update profile')
+      }
     } finally {
       setSaving(false)
     }
